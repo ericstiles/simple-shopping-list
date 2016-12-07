@@ -1,4 +1,5 @@
 module.exports = {
-    remoteUrl : 'mongodb://ets:ets@ds127968.mlab.com:27968/heroku_dsjrckv6',
+    remoteUrl : 'mongodb://ets:ets@ds127978.mlab.com:27978/heroku_0d43trbz',
     localUrl: 'mongodb://localhost/meanstacktutorials'
 };
+//mongodb://<dbuser>:<dbpassword>@ds127978.mlab.com:27978/heroku_0d43trbz
