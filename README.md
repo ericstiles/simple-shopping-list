@@ -1,6 +1,6 @@
-# Node Todo App
+# Node Shopping List  App
 
-A Node app built with MongoDB and Angular. For demonstration purposes and a tutorial.
+A Node app built with MongoDB, Express and Angular. For demonstration purposes and a tutorial. Built from a fork of the Scotch IO todo app.
 
 Node provides the RESTful API. Angular provides the frontend and accesses the API. MongoDB stores like a hoarder.
 
@@ -17,15 +17,13 @@ Node provides the RESTful API. Angular provides the frontend and accesses the AP
 3. Start the server: `node server.js`
 4. View in browser at `http://localhost:8080`
 
-## Tutorial Series
+### For heroku
+1. From cli run heroku create
+2. In the heroku dashboard click on the newly created person app
+3. Click over to Resources and type mongo in the add-on section
+4. Click on the mongo create link and add a user
+5. Change the mongo url in the repo to the updated remote Url in database.js and server.js file
+6. Add and commit changes
+7. git push heroku master
+8. Run heroku open
 
-This repo corresponds to the Node Todo Tutorial Series on [scotch.io](http://scotch.io)
-
-Each branch represents a certain tutorial.
-- tut1-starter: [Creating a Single Page Todo App with Node and Angular](http://scotch.io/tutorials/javascript/creating-a-single-page-todo-app-with-node-and-angular)
-- tut2-organization: [Application Organization and Structure](https://scotch.io/tutorials/node-and-angular-to-do-app-application-organization-and-structure)
-- tut3-services: [Controllers and Services](https://scotch.io/tutorials/node-and-angular-to-do-app-controllers-and-services)
-
-Happy Todo-ing!
-
-![Todo-aholic](http://i.imgur.com/ikyqgrn.png)
