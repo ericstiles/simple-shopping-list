@@ -1,4 +1,89 @@
 var Todo = require('./models/todo');
+var MetaList = require('./models/metalist');
+
+function addMetaListTotal(res, price) {
+    MetaList.find(function(err, metalist) {
+
+        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+        if (err) {
+            res.send(err);
+        }
+        metalist[0].update({ total: +price + +metalist[0].total },
+            function(err, message) {
+                if (err) {
+                    res.send("There was a problem updating the information to the database: " + err);
+                }
+                console.log("metalist update response message:" + message);
+                console.log("just updated metalist:" + JSON.stringify(metalist[0]));
+
+                MetaList.find(function(err, metalist2) {
+
+                    // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+                    if (err) {
+                        res.send(err);
+                    }
+                    console.log("2nd pass on getting metalist:" + JSON.stringify(metalist2[0]));
+                    res.json(metalist2[0]);
+                });
+
+            });
+    });
+
+};
+
+function subtractMetaListTotal(res, id) {
+
+    Todo.findById(id, function(err, todo) {
+        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+        if (err) {
+            res.send(err);
+        }
+
+
+        MetaList.find(function(err, metalist) {
+
+            // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+            if (err) {
+                res.send(err);
+            }
+            metalist[0].update({ total: +metalist[0].total - +todo.price },
+                function(err, message) {
+                    if (err) {
+                        res.send("There was a problem updating the information to the database: " + err);
+                    }
+                    console.log("metalist update response message:" + message);
+                    console.log("just updated metalist:" + JSON.stringify(metalist[0]));
+
+                    MetaList.find(function(err, metalist2) {
+
+                        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+                        if (err) {
+                            res.send(err);
+                        }
+                        console.log("2nd pass on getting metalist:" + JSON.stringify(metalist2[0]));
+                        res.json(metalist2[0]);
+                    });
+
+                });
+        });
+
+    });
+
+
+
+};
+
+function getMetaList(res) {
+    MetaList.find(function(err, metalist) {
+
+        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+        if (err) {
+            res.send(err);
+        }
+        console.log("getting following metalist object:" + JSON.stringify(metalist[0]));
+        res.json(metalist[0]);
+    });
+};
 
 function getTodos(res) {
     Todo.find(function(err, todos) {
@@ -38,6 +123,17 @@ function getTodoByProperty(key, value, res) {
 module.exports = function(app) {
 
     // api ---------------------------------------------------------------------
+    app.post('/api/metalist/total/add', function(req, res) {
+        console.log("add total:" + JSON.stringify(req.body));
+        addMetaListTotal(res, req.body.price);
+    });
+    app.post('/api/metalist/total/subtract', function(req, res) {
+        console.log("subtract total from id:" + JSON.stringify(req.body));
+        subtractMetaListTotal(res, req.body.id);
+    });
+    app.get('/api/metalist', function(req, res) {
+        getMetaList(res);
+    });
     // get all todos
     app.get('/api/todos', function(req, res) {
         // use mongoose to get all todos in the database
@@ -57,19 +153,18 @@ module.exports = function(app) {
 
     // create todo and send back all todos after creation
     app.post('/api/todos', function(req, res) {
-
         // create a todo, information comes from AJAX request from Angular
         Todo.create({
             text: req.body.text,
+            quantity: req.body.quantity,
+            price: req.body.price,
             done: false
         }, function(err, todo) {
             if (err)
                 res.send(err);
-
-            // get and return all the todos after you create another
+            //get all todos
             getTodos(res);
         });
-
     });
 
     // delete a todo

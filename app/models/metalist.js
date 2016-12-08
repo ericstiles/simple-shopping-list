@@ -1,16 +1,16 @@
 var mongoose = require('mongoose');
 
-module.exports = mongoose.model('Todo', {
-    text: {
+module.exports = mongoose.model('MetaList', {
+    name: {
         type: String,
         default: ''
     },
-    quantity: {
+    number: {
     	type: Number,
-    	default: '1'
+    	default: '0'
     },
-    price: {
+    total: {
     	type: Number,
-    	default: '1.99'
+    	default: '0'
     }
-},'todos');
+}, 'metalist');
