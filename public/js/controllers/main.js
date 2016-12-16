@@ -18,7 +18,7 @@ angular.module('todoController', [])
 		MetaList.get()
 			.success(function(data) {
 				console.log("metalist get:" + data);
-				$scope.metalist.total = data.total;
+				$scope.metalist = data;
 				$scope.loading = false;
 			});
 

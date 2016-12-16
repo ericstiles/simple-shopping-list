@@ -1,5 +1,6 @@
 var Todo = require('./models/todo');
 var MetaList = require('./models/metalist');
+var currencyFormatter = require('currency-formatter');
 
 function addMetaListTotal(res, price) {
     MetaList.find(function(err, metalist) {
@@ -22,6 +23,7 @@ function addMetaListTotal(res, price) {
                     if (err) {
                         res.send(err);
                     }
+                    metalist2[0].total=dollar( metalist2[0].total);
                     console.log("2nd pass on getting metalist:" + JSON.stringify(metalist2[0]));
                     res.json(metalist2[0]);
                 });
@@ -55,11 +57,12 @@ function subtractMetaListTotal(res, id) {
                     console.log("just updated metalist:" + JSON.stringify(metalist[0]));
 
                     MetaList.find(function(err, metalist2) {
-
+                        var obj = metalist2[0].toObject()
                         // if there is an error retrieving, send the error. nothing after res.send(err) will execute
                         if (err) {
                             res.send(err);
                         }
+                        metalist2[0].total=dollar( metalist2[0].total);
                         console.log("2nd pass on getting metalist:" + JSON.stringify(metalist2[0]));
                         res.json(metalist2[0]);
                     });
@@ -75,13 +78,18 @@ function subtractMetaListTotal(res, id) {
 
 function getMetaList(res) {
     MetaList.find(function(err, metalist) {
-
+    var obj = metalist[0].toObject()
         // if there is an error retrieving, send the error. nothing after res.send(err) will execute
         if (err) {
             res.send(err);
         }
-        console.log("getting following metalist object:" + JSON.stringify(metalist[0]));
-        res.json(metalist[0]);
+        obj.cTotal=dollar(obj.total);
+        console.log("getting following metalist object:" + JSON.stringify(obj));
+
+//var tmp = {"_id":"584864c7291ebb3c247b1024","total":6.1899999999999995, "cTotal": "$11.99", "number":0,"name":"listone"}
+
+
+        res.json(obj);
     });
 };
 
@@ -119,6 +127,10 @@ function getTodoByProperty(key, value, res) {
         res.json(todo);
     });
 };
+
+function dollar(amount){
+    return currencyFormatter.format(amount, { code: 'USD' });
+}
 
 module.exports = function(app) {
 
