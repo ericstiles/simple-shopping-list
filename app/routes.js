@@ -148,7 +148,7 @@ function getItemAtOrder(order, res) {
             }
 
             console.log("number:" + (number[0].value - 1));
-            if (todo.length < number[0].value) {
+            if (todos.length < number[0].value) {
                 res.json(todos[number[0].value - 1]); // return all todos in JSON format
             } else {
                 res.send("no item found");
