@@ -1,5 +1,6 @@
 var Todo = require('./models/todo');
 var MetaList = require('./models/metalist');
+var Numba = require('./models/number');
 var currencyFormatter = require('currency-formatter');
 
 function addMetaListTotal(res, price) {
@@ -23,7 +24,7 @@ function addMetaListTotal(res, price) {
                     if (err) {
                         res.send(err);
                     }
-                    metalist2[0].total=dollar( metalist2[0].total);
+                    metalist2[0].total = dollar(metalist2[0].total);
                     console.log("2nd pass on getting metalist:" + JSON.stringify(metalist2[0]));
                     res.json(metalist2[0]);
                 });
@@ -58,11 +59,11 @@ function subtractMetaListTotal(res, id) {
 
                     MetaList.find(function(err, metalist2) {
                         var obj = metalist2[0].toObject()
-                        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+                            // if there is an error retrieving, send the error. nothing after res.send(err) will execute
                         if (err) {
                             res.send(err);
                         }
-                        metalist2[0].total=dollar( metalist2[0].total);
+                        metalist2[0].total = dollar(metalist2[0].total);
                         console.log("2nd pass on getting metalist:" + JSON.stringify(metalist2[0]));
                         res.json(metalist2[0]);
                     });
@@ -78,15 +79,15 @@ function subtractMetaListTotal(res, id) {
 
 function getMetaList(res) {
     MetaList.find(function(err, metalist) {
-    var obj = metalist[0].toObject()
-        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+        var obj = metalist[0].toObject()
+            // if there is an error retrieving, send the error. nothing after res.send(err) will execute
         if (err) {
             res.send(err);
         }
-        obj.cTotal=dollar(obj.total);
+        obj.cTotal = dollar(obj.total);
         console.log("getting following metalist object:" + JSON.stringify(obj));
 
-//var tmp = {"_id":"584864c7291ebb3c247b1024","total":6.1899999999999995, "cTotal": "$11.99", "number":0,"name":"listone"}
+        //var tmp = {"_id":"584864c7291ebb3c247b1024","total":6.1899999999999995, "cTotal": "$11.99", "number":0,"name":"listone"}
 
 
         res.json(obj);
@@ -128,8 +129,32 @@ function getTodoByProperty(key, value, res) {
     });
 };
 
-function dollar(amount){
+function dollar(amount) {
     return currencyFormatter.format(amount, { code: 'USD' });
+}
+
+function getItemAtOrder(order, res) {
+    console.log("getting ready to look for:" + order);
+    Numba.where("order", order).exec(function(err, number) {
+        if (err) {
+            res.send(err);
+        }
+        console.log("found order:" + JSON.stringify(number))
+        Todo.find(function(err, todos) {
+
+            // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+            if (err) {
+                res.send(err);
+            }
+
+            console.log("number:" + (number[0].value - 1));
+            if (todo.length < number[0].value) {
+                res.json(todos[number[0].value - 1]); // return all todos in JSON format
+            } else {
+                res.send("no item found");
+            }
+        });
+    })
 }
 
 module.exports = function(app) {
@@ -154,7 +179,6 @@ module.exports = function(app) {
 
     app.get('/api/todos/:todo_id', function(req, res) {
         getTodoById(req.params.todo_id, res);
-        //res.json(JSON.parse('{ "name" : "eric"}'));
     });
 
     app.get('/api/todos/:todo_key/:todo_value', function(req, res) {
@@ -189,6 +213,11 @@ module.exports = function(app) {
 
             getTodos(res);
         });
+    });
+
+    app.get('/api/item/:order', function(req, res) {
+        console.log("order:" + req.params.order);
+        getItemAtOrder(req.params.order, res);
     });
 
     // application -------------------------------------------------------------
