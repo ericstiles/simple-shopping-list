@@ -141,18 +141,22 @@ function getItemAtOrder(order, res) {
         }
         console.log("found order:" + JSON.stringify(number))
         Todo.find(function(err, todos) {
+            try {
+                // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+                if (err) {
+                    res.send(err);
+                }
 
-            // if there is an error retrieving, send the error. nothing after res.send(err) will execute
-            if (err) {
+                console.log("number:" + (number[0].value - 1));
+                console.log("todos.length:" + todos.length);
+                if (todos.length > number[0].value) {
+                    res.json(todos[number[0].value - 1]); // return all todos in JSON format
+                } else {
+                    res.send("no item found");
+                }
+            } catch (err) {
+                console.log(err);
                 res.send(err);
-            }
-
-            console.log("number:" + (number[0].value - 1));
-            console.log("todos.length:" + todos.length);
-            if (todos.length > number[0].value) {
-                res.json(todos[number[0].value - 1]); // return all todos in JSON format
-            } else {
-                res.send("no item found");
             }
         });
     })
