@@ -8,6 +8,10 @@ module.exports = function() {
             return {
                 "databaseUrl": 'mongodb://localhost/meanstacktutorials'
             }
+        case 'test':
+            return {
+                "databaseUrl": 'mongodb://localhost/node-test'
+            }
         default:
             return {
                 "error": "No configuration values supplied.\nTry 'NODE_ENV=development node build.js'\nOther value is 'production'."
