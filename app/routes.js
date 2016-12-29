@@ -79,13 +79,14 @@ function subtractMetaListTotal(res, id) {
 
 function getMetaList(res) {
     MetaList.find(function(err, metalist) {
+        //console.log(JSON.stringify(metalist[0]));
         var obj = metalist[0].toObject()
             // if there is an error retrieving, send the error. nothing after res.send(err) will execute
         if (err) {
             res.send(err);
         }
         obj.cTotal = dollar(obj.total);
-        console.log("getting following metalist object:" + JSON.stringify(obj));
+        //console.log("getting following metalist object:" + JSON.stringify(obj));
 
         //var tmp = {"_id":"584864c7291ebb3c247b1024","total":6.1899999999999995, "cTotal": "$11.99", "number":0,"name":"listone"}
 
@@ -165,22 +166,50 @@ function getItemAtOrder(order, res) {
 module.exports = function(app) {
 
     // api ---------------------------------------------------------------------
-    app.post('/api/metalist/total/add', function(req, res) {
-        console.log("add total:" + JSON.stringify(req.body));
-        addMetaListTotal(res, req.body.price);
-    });
-    app.post('/api/metalist/total/subtract', function(req, res) {
-        console.log("subtract total from id:" + JSON.stringify(req.body));
-        subtractMetaListTotal(res, req.body.id);
-    });
-    app.get('/api/metalist', function(req, res) {
-        getMetaList(res);
-    });
+    app.route('/api/list')
+        .get(function(req, res) {
+            //            console.log("In router.js: api/list GET");
+            getTodos(res);
+        }).post(function(req, res) {
+            //            console.log("In router.js: api/list POST");
+            //            console.log(req.body);
+            var newTodo = new Todo(req.body);
+            newTodo.save((err, newTodo) => {
+                if (err) {
+                    res.send(err);
+                } else { //If no errors, send it back to the client
+                    //res.json({ message: "Book successfully added!", book });
+                    getTodos(res);
+                }
+            });
+        });
+
+    // app.route('/api/metalist/total/add')
+    //     .post(function(req, res) {
+    //         console.log("add total:" + JSON.stringify(req.body));
+    //         addMetaListTotal(res, req.body.price);
+    //     });
+
+
+    // app.post('/api/metalist/total/subtract', function(req, res) {
+    //     console.log("subtract total from id:" + JSON.stringify(req.body));
+    //     subtractMetaListTotal(res, req.body.id);
+    // });
+
+    app.route('/api/metalist')
+        .get(function(req, res) {
+            // console.log("In routes.js /api/metalist GET");
+            getMetaList(res);
+        });
     // get all todos
-    app.get('/api/todos', function(req, res) {
-        // use mongoose to get all todos in the database
-        getTodos(res);
-    });
+    // app.get('/api/todos', function(req, res) {
+    //     // console.log("In api/todos router.js");
+    //     // use mongoose to get all todos in the database
+    //     getTodos(res);
+    // });
+
+
+
 
     app.get('/api/todos/:todo_id', function(req, res) {
         getTodoById(req.params.todo_id, res);
@@ -192,21 +221,22 @@ module.exports = function(app) {
         getTodoByProperty(req.params.todo_key, req.params.todo_value, res);
     });
 
-    // create todo and send back all todos after creation
-    app.post('/api/todos', function(req, res) {
-        // create a todo, information comes from AJAX request from Angular
-        Todo.create({
-            text: req.body.text,
-            quantity: req.body.quantity,
-            price: req.body.price,
-            done: false
-        }, function(err, todo) {
-            if (err)
-                res.send(err);
-            //get all todos
-            getTodos(res);
-        });
-    });
+    // create list item and send back all list items after creation
+    // app.post('/api/list', function(req, res) {
+    //     console.log("In api/list router.js");
+    //     // create a todo, information comes from AJAX request from Angular
+    //     Todo.create({
+    //         text: req.body.text,
+    //         quantity: req.body.quantity,
+    //         price: req.body.price,
+    //         done: false
+    //     }, function(err, todo) {
+    //         if (err)
+    //             res.send(err);
+    //         //get all todos
+    //         getTodos(res);
+    //     });
+    // });
 
     // delete a todo
     app.delete('/api/todos/:todo_id', function(req, res) {
@@ -223,6 +253,12 @@ module.exports = function(app) {
     app.get('/api/item/:order', function(req, res) {
         console.log("order:" + req.params.order);
         getItemAtOrder(req.params.order, res);
+    });
+
+
+
+    app.get('/api/', function(req, res) {
+
     });
 
     // application -------------------------------------------------------------

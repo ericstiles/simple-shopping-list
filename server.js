@@ -1,6 +1,5 @@
 // set up ======================================================================
 var express = require('express');
-var app = express(); 
 var mongoose = require('mongoose');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
@@ -12,7 +11,7 @@ if (metadata.error) {
     process.exit(1);
 }
 
-
+var app = express(); 
 
 
 // configuration ===============================================================
@@ -23,7 +22,9 @@ app.use(bodyParser.urlencoded({ 'extended': 'true' })); // parse application/x-w
 app.use(bodyParser.json()); // parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
 app.use(methodOverride('X-HTTP-Method-Override')); // override with the X-HTTP-Method-Override header in the request
-
+// app.use(function (req, res, next) {
+//   res.status(404).send("Sorry can't find that!")
+// })
 
 // routes ======================================================================
 require('./app/routes.js')(app);
