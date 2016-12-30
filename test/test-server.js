@@ -19,6 +19,7 @@ describe('List Items', function() {
 
     beforeEach(function(done) {
         let itemOne = new Todo({
+        	// _id:'1',
             text: 'Apples',
             quantity: 10,
             price: '2.15'
@@ -36,7 +37,7 @@ describe('List Items', function() {
         });
         let metalist = new MetaList({
             name: "listone",
-            number: 0,
+            number: 2,
             total: 3.25
         })
         metalist.save(function(err) {
@@ -44,8 +45,9 @@ describe('List Items', function() {
         });
     });
     afterEach(function(done) {
-        Todo.collection.drop();
-        done();
+       Todo.collection.drop();
+       MetaList.collection.drop();
+       done();
     });
     it('should return complete list of items: /api/list GET', function(done) {
         // console.log("NODE_ENV:" + process.env.NODE_ENV);
@@ -55,8 +57,6 @@ describe('List Items', function() {
                 res.should.have.status(200);
                 res.should.be.json;
                 res.body.should.have.length(2);
-                res.body[0].should.include({ text: 'Apples' });
-                res.body[1].should.include({ text: 'Oranges' });
                 done();
             });
     });
@@ -78,9 +78,6 @@ describe('List Items', function() {
                 res.should.have.status(200);
                 res.should.be.json;
                 res.body.should.have.length(3);
-                res.body[0].should.include({ text: 'Apples' });
-                res.body[1].should.include({ text: 'Oranges' });
-                res.body[2].should.include({ text: 'Bananas' });
                 done();
             });
     });
@@ -93,34 +90,83 @@ describe('List Items', function() {
                 res.should.be.json;
                 res.body.should.include({
                     name: "listone",
-                    number: 0,
+                    number: 2,
                     total: 3.25,
                     cTotal: "$3.25"
                 });
                 done();
             });
     });
-    // it('should return complete list: /api/todos GET', function(done) {
-    // 	console.log("NODE_ENV:" + process.env.NODE_ENV);
-    //     chai.request(server)
-    //         .get('/api/todos')
-    //         .end(function(err, res) {
-    //             res.should.have.status(200);
-    //             console.log(JSON.stringify(res));
-    //             //res.should.be.json;
-    //             // res.body.should.be.a('object');
-    //             // res.body.should.have.property('SUCCESS');
-    //             // res.body.SUCCESS.should.be.a('object');
-    //             // res.body.SUCCESS.should.have.property('name');
-    //             // res.body.SUCCESS.should.have.property('lastName');
-    //             // res.body.SUCCESS.should.have.property('_id');
-    //             // res.body.SUCCESS.name.should.equal('Java');
-    //             // res.body.SUCCESS.lastName.should.equal('Script');
-    //             done();
-    //         });
-    // });
-    // it('should list a SINGLE blob on /blob/<id> GET');
-    // it('should add a SINGLE blob on /blobs POST');
-    // it('should update a SINGLE blob on /blob/<id> PUT');
-    // it('should delete a SINGLE blob on /blob/<id> DELETE');
+    it('should add a new item and add the total price and quantity to the metalist: /api/metalist/add POST', function(done) {
+        // console.log("NODE_ENV:" + process.env.NODE_ENV);
+        chai.request(server)
+            .post('/api/metalist/add')
+            .send({
+                text: 'Bananas',
+                quantity: 2,
+                price: '1.10'
+            })
+            .end(function(err, res) {
+                if (err) {
+                    console.log(err);
+                }
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.include({
+                    name: "listone",
+                    number: 3,
+                    total: 4.35,
+                    cTotal: "$4.35"
+                });
+                done();
+            });
+    });
+    it('should remove an item by id subtracting the total price and quantity from the metalist: /api/metalist/subtract POST', function(done) {
+        // console.log("NODE_ENV:" + process.env.NODE_ENV);
+        Todo.where('text', 'Oranges').exec(function(err, todo) {
+        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+        if (err) {
+            res.send(err);
+        }
+        console.log("todo:->" + JSON.stringify(todo[0]));
+        console.log("todo._id:->" + todo[0]._id);
+        chai.request(server)
+            .post('/api/metalist/subtract')
+            .send({
+                id: todo[0]._id
+            })
+            .end(function(err, res) {
+                if (err) {
+                    console.log(err.message);
+                }
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.include({
+                    name: "listone",
+                    number: 1,
+                    total: 2.15,
+                    cTotal: "$2.15"
+                });
+                done();
+            });
+    });
+
+    });
+    it('should return a 500 and error message when subtracting using an invalid id: /api/metalist/subtract POST', function(done) {
+        // console.log("NODE_ENV:" + process.env.NODE_ENV);
+        chai.request(server)
+            .post('/api/metalist/subtract')
+            .send({
+                id: '1'
+            })
+            .end(function(err, res) {
+                if (err) {
+                    console.log(err.message);
+                }
+                res.should.have.status(500);
+                res.should.be.json;
+                res.body.should.include({ error: "Not a valid id:1" });
+                done();
+            });
+    });
 });

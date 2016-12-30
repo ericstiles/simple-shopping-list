@@ -2,31 +2,30 @@ var Todo = require('./models/todo');
 var MetaList = require('./models/metalist');
 var Numba = require('./models/number');
 var currencyFormatter = require('currency-formatter');
+var mongoose = require('mongoose');
 
 function addMetaListTotal(res, price) {
     MetaList.find(function(err, metalist) {
-
-        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
         if (err) {
             res.send(err);
         }
-        metalist[0].update({ total: +price + +metalist[0].total },
+        metalist[0].update({ total: +price + +metalist[0].total, number: ++metalist[0].number },
             function(err, message) {
                 if (err) {
                     res.send("There was a problem updating the information to the database: " + err);
                 }
-                console.log("metalist update response message:" + message);
-                console.log("just updated metalist:" + JSON.stringify(metalist[0]));
+                // console.log("metalist update response message:" + message);
+                // console.log("just updated metalist:" + JSON.stringify(metalist[0]));
 
                 MetaList.find(function(err, metalist2) {
-
-                    // if there is an error retrieving, send the error. nothing after res.send(err) will execute
                     if (err) {
                         res.send(err);
                     }
-                    metalist2[0].total = dollar(metalist2[0].total);
-                    console.log("2nd pass on getting metalist:" + JSON.stringify(metalist2[0]));
-                    res.json(metalist2[0]);
+                    var obj = metalist2[0].toObject();
+                    obj.total = obj.total;
+                    obj.cTotal = dollar(obj.total);
+                    // console.log("2nd pass on getting metalist:" + JSON.stringify(metalist2[0]));
+                    res.json(obj);
                 });
 
             });
@@ -35,46 +34,47 @@ function addMetaListTotal(res, price) {
 };
 
 function subtractMetaListTotal(res, id) {
-
-    Todo.findById(id, function(err, todo) {
-        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
-        if (err) {
-            res.send(err);
-        }
-
-
-        MetaList.find(function(err, metalist) {
-
-            // if there is an error retrieving, send the error. nothing after res.send(err) will execute
-            if (err) {
-                res.send(err);
-            }
-            metalist[0].update({ total: +metalist[0].total - +todo.price },
-                function(err, message) {
+    try {
+        console.log("id:" + id);
+        if (id.match(/^[0-9a-fA-F]{24}$/)) {
+            Todo.findById(id, function(err, todo) {
+                console.log("?=>" + todo);
+                if (err) {
+                    console.log("error in subtract");
+                    console.log(err.message);
+                    res.send(500, err.message);
+                }
+                MetaList.find(function(err, metalist) {
                     if (err) {
-                        res.send("There was a problem updating the information to the database: " + err);
+                        res.status(500).json({ error: err.message });
                     }
-                    console.log("metalist update response message:" + message);
-                    console.log("just updated metalist:" + JSON.stringify(metalist[0]));
-
-                    MetaList.find(function(err, metalist2) {
-                        var obj = metalist2[0].toObject()
-                            // if there is an error retrieving, send the error. nothing after res.send(err) will execute
-                        if (err) {
-                            res.send(err);
-                        }
-                        metalist2[0].total = dollar(metalist2[0].total);
-                        console.log("2nd pass on getting metalist:" + JSON.stringify(metalist2[0]));
-                        res.json(metalist2[0]);
-                    });
-
+                    metalist[0].update({ total: +metalist[0].total - +todo.price, number: --metalist[0].number },
+                        function(err, message) {
+                            if (err) {
+                                res.status(500).json({ error: err.message });
+                            }
+                            console.log("metalist update response message:" + message);
+                            console.log("just updated metalist:" + JSON.stringify(metalist[0]));
+                            MetaList.find(function(err, metalist2) {
+                                var obj = metalist2[0].toObject()
+                                    // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+                                if (err) {
+                                    res.send(err);
+                                }
+                                obj.cTotal = dollar(obj.total);
+                                console.log("subtract: 2nd pass on getting metalist:" + JSON.stringify(obj));
+                                res.json(obj);
+                            });
+                        });
                 });
-        });
-
-    });
-
-
-
+            });
+        } else {
+            throw new Error("Not a valid id:" + id);
+        }
+    } catch (err) {
+        console.log("ERR in subtract:" + err.message);
+        res.status(500).json({ error: err.message });
+    }
 };
 
 function getMetaList(res) {
@@ -184,17 +184,19 @@ module.exports = function(app) {
             });
         });
 
-    // app.route('/api/metalist/total/add')
-    //     .post(function(req, res) {
-    //         console.log("add total:" + JSON.stringify(req.body));
-    //         addMetaListTotal(res, req.body.price);
-    //     });
+    app.route('/api/metalist/add')
+        .post(function(req, res) {
+            console.log("add total:" + JSON.stringify(req.body));
+            addMetaListTotal(res, req.body.price);
+        });
 
 
-    // app.post('/api/metalist/total/subtract', function(req, res) {
-    //     console.log("subtract total from id:" + JSON.stringify(req.body));
-    //     subtractMetaListTotal(res, req.body.id);
-    // });
+    app.route('/api/metalist/subtract')
+        .post(function(req, res) {
+            console.log("subtract total from id:" + JSON.stringify(req.body));
+            console.log("subtract total from id:" + req.body.id);
+            subtractMetaListTotal(res, req.body.id);
+        });
 
     app.route('/api/metalist')
         .get(function(req, res) {
