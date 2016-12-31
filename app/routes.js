@@ -150,14 +150,19 @@ function getItemAtOrder(order, res) {
 
                 console.log("number:" + (number[0].value - 1));
                 console.log("todos.length:" + todos.length);
-                if (todos.length > number[0].value) {
-                    res.json(todos[number[0].value - 1]); // return all todos in JSON format
+                if (todos.length >= number[0].value && number[0].value > 0) {
+                    res.json(todos[number[0].value - 1]);
                 } else {
-                    res.send("no item found");
+throw new Error("Order value not valid:" + JSON.stringify(number[0]));
                 }
+                // if (todos.length > number[0].value) {
+                //     res.json(todos[number[0].value - 1]); // return all todos in JSON format
+                // } else {
+                //     res.send("no item found");
+                // }
             } catch (err) {
-                console.log(err);
-                res.send(err);
+        console.log("ERR in order request:" + err.message);
+        res.status(500).json({ error: err.message });
             }
         });
     })
@@ -166,6 +171,11 @@ function getItemAtOrder(order, res) {
 module.exports = function(app) {
 
     // api ---------------------------------------------------------------------
+    app.route('/api/list/:item_id')
+        .get(function(req, res) {
+            console.log("order value:" + req.params.item_id);
+            getItemAtOrder(req.params.item_id, res);
+        });
     app.route('/api/list')
         .get(function(req, res) {
             //            console.log("In router.js: api/list GET");
@@ -203,19 +213,14 @@ module.exports = function(app) {
             // console.log("In routes.js /api/metalist GET");
             getMetaList(res);
         });
-    // get all todos
-    // app.get('/api/todos', function(req, res) {
-    //     // console.log("In api/todos router.js");
-    //     // use mongoose to get all todos in the database
-    //     getTodos(res);
-    // });
 
-
-
-
-    app.get('/api/todos/:todo_id', function(req, res) {
-        getTodoById(req.params.todo_id, res);
+    app.get('/api/item/:order', function(req, res) {
+        console.log("order:" + req.params.order);
+        getItemAtOrder(req.params.order, res);
     });
+
+
+
 
     app.get('/api/todos/:todo_key/:todo_value', function(req, res) {
         console.log("key:" + req.params.todo_key);
@@ -252,16 +257,7 @@ module.exports = function(app) {
         });
     });
 
-    app.get('/api/item/:order', function(req, res) {
-        console.log("order:" + req.params.order);
-        getItemAtOrder(req.params.order, res);
-    });
 
-
-
-    app.get('/api/', function(req, res) {
-
-    });
 
     // application -------------------------------------------------------------
     app.get('*', function(req, res) {

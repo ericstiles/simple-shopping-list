@@ -16,38 +16,35 @@ chai.use(chaiHttp);
 describe('List Items', function() {
 
     Todo.collection.drop();
+    MetaList.collection.drop();
+    Numba.collection.drop();
 
     beforeEach(function(done) {
-        let itemOne = new Todo({
-        	// _id:'1',
-            text: 'Apples',
-            quantity: 10,
-            price: '2.15'
-        });
-        itemOne.save(function(err) {
-            // done();
-        });
-        let itemTwo = new Todo({
-            text: 'Oranges',
-            quantity: 5,
-            price: '1.10'
-        });
-        itemTwo.save(function(err) {
-            // done();
-        });
+        new Todo({ text: 'Apples', quantity: 10, price: '2.15' }).save(function(err) {});
+        new Todo({ text: 'Oranges', quantity: 5, price: '1.10' }).save(function(err) {});
         let metalist = new MetaList({
             name: "listone",
             number: 2,
             total: 3.25
         })
         metalist.save(function(err) {
+            // done();
+        });
+        new Numba({ order: 'first', value: 1 }).save(function(err) {});
+        new Numba({ order: '1st', value: 1 }).save(function(err) {});
+        new Numba({ order: 'second', value: 2 }).save(function(err) {});
+        new Numba({ order: '2nd', value: 2 }).save(function(err) {});
+        new Numba({ order: 'third', value: 3 }).save(function(err) {});
+        new Numba({ order: '3rd', value: 3 }).save(function(err) {
             done();
         });
+
     });
     afterEach(function(done) {
-       Todo.collection.drop();
-       MetaList.collection.drop();
-       done();
+        Todo.collection.drop();
+        MetaList.collection.drop();
+        Numba.collection.drop();
+        done();
     });
     it('should return complete list of items: /api/list GET', function(done) {
         // console.log("NODE_ENV:" + process.env.NODE_ENV);
@@ -124,32 +121,32 @@ describe('List Items', function() {
     it('should remove an item by id subtracting the total price and quantity from the metalist: /api/metalist/subtract POST', function(done) {
         // console.log("NODE_ENV:" + process.env.NODE_ENV);
         Todo.where('text', 'Oranges').exec(function(err, todo) {
-        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
-        if (err) {
-            res.send(err);
-        }
-        console.log("todo:->" + JSON.stringify(todo[0]));
-        console.log("todo._id:->" + todo[0]._id);
-        chai.request(server)
-            .post('/api/metalist/subtract')
-            .send({
-                id: todo[0]._id
-            })
-            .end(function(err, res) {
-                if (err) {
-                    console.log(err.message);
-                }
-                res.should.have.status(200);
-                res.should.be.json;
-                res.body.should.include({
-                    name: "listone",
-                    number: 1,
-                    total: 2.15,
-                    cTotal: "$2.15"
+            // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+            if (err) {
+                res.send(err);
+            }
+            console.log("todo:->" + JSON.stringify(todo[0]));
+            console.log("todo._id:->" + todo[0]._id);
+            chai.request(server)
+                .post('/api/metalist/subtract')
+                .send({
+                    id: todo[0]._id
+                })
+                .end(function(err, res) {
+                    if (err) {
+                        console.log(err.message);
+                    }
+                    res.should.have.status(200);
+                    res.should.be.json;
+                    res.body.should.include({
+                        name: "listone",
+                        number: 1,
+                        total: 2.15,
+                        cTotal: "$2.15"
+                    });
+                    done();
                 });
-                done();
-            });
-    });
+        });
 
     });
     it('should return a 500 and error message when subtracting using an invalid id: /api/metalist/subtract POST', function(done) {
@@ -168,5 +165,96 @@ describe('List Items', function() {
                 res.body.should.include({ error: "Not a valid id:1" });
                 done();
             });
+    });
+
+});
+
+describe('Order Items', function() {
+
+    Todo.collection.drop();
+    MetaList.collection.drop();
+    Numba.collection.drop();
+    beforeEach(function(done) {
+        // new Todo({ text: 'Apples', quantity: 10, price: '2.15' }).save(function(err) {});
+        // new Todo({ text: 'Oranges', quantity: 5, price: '1.10' }).save(function(err) {});
+
+        new Numba({ order: 'first', value: 1 }).save(function(err) {});
+        new Numba({ order: '1st', value: 1 }).save(function(err) {});
+        new Numba({ order: 'second', value: 2 }).save(function(err) {});
+        new Numba({ order: '2nd', value: 2 }).save(function(err) {});
+        new Numba({ order: 'third', value: 3 }).save(function(err) {});
+        new Numba({ order: '3rd', value: 3 }).save(function(err) {
+            done();
+        });
+
+    });
+    afterEach(function(done) {
+        Todo.collection.drop();
+        MetaList.collection.drop();
+        Numba.collection.drop();
+        done();
+    });
+    it('should return the first list item given first when one item in list: /api/list/:item_id GET', function(done) {
+        // console.log("NODE_ENV:" + process.env.NODE_ENV);
+        // console.log("NODE_ENV:" + process.env.NODE_ENV);
+        // Todo.where('text', 'Oranges').exec(function(err, todo) {
+        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+        new Todo({ text: 'Apples', quantity: 10, price: '2.15' }).save(function(err) {});
+        let value = "first"
+        chai.request(server)
+            .get('/api/list/' + value)
+            .end(function(err, res) {
+                console.log("res.body:" + JSON.stringify(res.body));
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.include({
+                    text: 'Apples',
+                    quantity: 10,
+                    price: 2.15
+                });
+                done();
+            });
+        // });
+    });
+       it('should return the first list item given 1st when one item in list: /api/list/:item_id GET', function(done) {
+        // console.log("NODE_ENV:" + process.env.NODE_ENV);
+        // console.log("NODE_ENV:" + process.env.NODE_ENV);
+        // Todo.where('text', 'Oranges').exec(function(err, todo) {
+        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+        new Todo({ text: 'Apples', quantity: 10, price: '2.15' }).save(function(err) {});
+        let value = "1st"
+        chai.request(server)
+            .get('/api/list/' + value)
+            .end(function(err, res) {
+                console.log("res.body:" + JSON.stringify(res.body));
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.include({
+                    text: 'Apples',
+                    quantity: 10,
+                    price: 2.15
+                });
+                done();
+            });
+        // });
+    });
+        it('should return a 500 and error message when order number is not valid: /api/list/:item_id GET', function(done) {
+        // console.log("NODE_ENV:" + process.env.NODE_ENV);
+        // console.log("NODE_ENV:" + process.env.NODE_ENV);
+        // Todo.where('text', 'Oranges').exec(function(err, todo) {
+        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+        new Todo({ text: 'Apples', quantity: 10, price: '2.15' }).save(function(err) {});
+        let value = "2nd"
+        chai.request(server)
+            .get('/api/list/' + value)
+            .end(function(err, res) {
+                console.log("res.body:" + JSON.stringify(res.body));
+                res.should.have.status(500);
+                res.should.be.json;
+                // res.body.should.include({ error: "Not a valid id:1" });
+                res.body.should.have.property('error')
+                done();
+            });
+        // });
     });
 });
