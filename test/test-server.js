@@ -27,9 +27,7 @@ describe('List Items', function() {
             number: 2,
             total: 3.25
         })
-        metalist.save(function(err) {
-            // done();
-        });
+        metalist.save(function(err) {});
         new Numba({ order: 'first', value: 1 }).save(function(err) {});
         new Numba({ order: '1st', value: 1 }).save(function(err) {});
         new Numba({ order: 'second', value: 2 }).save(function(err) {});
@@ -47,7 +45,6 @@ describe('List Items', function() {
         done();
     });
     it('should return complete list of items: /api/list GET', function(done) {
-        // console.log("NODE_ENV:" + process.env.NODE_ENV);
         chai.request(server)
             .get('/api/list')
             .end(function(err, res) {
@@ -58,7 +55,6 @@ describe('List Items', function() {
             });
     });
     it('should add a new list item and return complete list of items: /api/list POST', function(done) {
-        // console.log("NODE_ENV:" + process.env.NODE_ENV);
         chai.request(server)
             .post('/api/list')
             .send({
@@ -79,7 +75,6 @@ describe('List Items', function() {
             });
     });
     it('should return meta information about list: /api/metalist GET', function(done) {
-        // console.log("NODE_ENV:" + process.env.NODE_ENV);
         chai.request(server)
             .get('/api/metalist')
             .end(function(err, res) {
@@ -95,7 +90,6 @@ describe('List Items', function() {
             });
     });
     it('should add a new item and add the total price and quantity to the metalist: /api/metalist/add POST', function(done) {
-        // console.log("NODE_ENV:" + process.env.NODE_ENV);
         chai.request(server)
             .post('/api/metalist/add')
             .send({
@@ -119,9 +113,7 @@ describe('List Items', function() {
             });
     });
     it('should remove an item by id subtracting the total price and quantity from the metalist: /api/metalist/subtract POST', function(done) {
-        // console.log("NODE_ENV:" + process.env.NODE_ENV);
         Todo.where('text', 'Oranges').exec(function(err, todo) {
-            // if there is an error retrieving, send the error. nothing after res.send(err) will execute
             if (err) {
                 res.send(err);
             }
@@ -150,7 +142,6 @@ describe('List Items', function() {
 
     });
     it('should return a 500 and error message when subtracting using an invalid id: /api/metalist/subtract POST', function(done) {
-        // console.log("NODE_ENV:" + process.env.NODE_ENV);
         chai.request(server)
             .post('/api/metalist/subtract')
             .send({
@@ -170,14 +161,10 @@ describe('List Items', function() {
 });
 
 describe('Order Items', function() {
-
     Todo.collection.drop();
     MetaList.collection.drop();
     Numba.collection.drop();
     beforeEach(function(done) {
-        // new Todo({ text: 'Apples', quantity: 10, price: '2.15' }).save(function(err) {});
-        // new Todo({ text: 'Oranges', quantity: 5, price: '1.10' }).save(function(err) {});
-
         new Numba({ order: 'first', value: 1 }).save(function(err) {});
         new Numba({ order: '1st', value: 1 }).save(function(err) {});
         new Numba({ order: 'second', value: 2 }).save(function(err) {});
@@ -186,7 +173,6 @@ describe('Order Items', function() {
         new Numba({ order: '3rd', value: 3 }).save(function(err) {
             done();
         });
-
     });
     afterEach(function(done) {
         Todo.collection.drop();
@@ -195,10 +181,6 @@ describe('Order Items', function() {
         done();
     });
     it('should return the first list item given first when one item in list: /api/list/:item_id GET', function(done) {
-        // console.log("NODE_ENV:" + process.env.NODE_ENV);
-        // console.log("NODE_ENV:" + process.env.NODE_ENV);
-        // Todo.where('text', 'Oranges').exec(function(err, todo) {
-        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
         new Todo({ text: 'Apples', quantity: 10, price: '2.15' }).save(function(err) {});
         let value = "first"
         chai.request(server)
@@ -214,13 +196,8 @@ describe('Order Items', function() {
                 });
                 done();
             });
-        // });
     });
     it('should return the first list item given 1st when one item in list: /api/list/:item_id GET', function(done) {
-        // console.log("NODE_ENV:" + process.env.NODE_ENV);
-        // console.log("NODE_ENV:" + process.env.NODE_ENV);
-        // Todo.where('text', 'Oranges').exec(function(err, todo) {
-        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
         new Todo({ text: 'Apples', quantity: 10, price: '2.15' }).save(function(err) {});
         let value = "1st"
         chai.request(server)
@@ -236,13 +213,8 @@ describe('Order Items', function() {
                 });
                 done();
             });
-        // });
     });
     it('should return the second list item given 2nd when two items in list: /api/list/:item_id GET', function(done) {
-        // console.log("NODE_ENV:" + process.env.NODE_ENV);
-        // console.log("NODE_ENV:" + process.env.NODE_ENV);
-        // Todo.where('text', 'Oranges').exec(function(err, todo) {
-        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
         new Todo({ text: 'Apples', quantity: 10, price: '2.15' }).save(function(err) {});
         new Todo({ text: 'Oranges', quantity: 10, price: '2.15' }).save(function(err) {});
         let value = "2nd"
@@ -259,13 +231,8 @@ describe('Order Items', function() {
                 });
                 done();
             });
-        // });
     });
     it('should return the second list item given 2nd when three items in list: /api/list/:item_id GET', function(done) {
-        // console.log("NODE_ENV:" + process.env.NODE_ENV);
-        // console.log("NODE_ENV:" + process.env.NODE_ENV);
-        // Todo.where('text', 'Oranges').exec(function(err, todo) {
-        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
         new Todo({ text: 'Apples', quantity: 10, price: '2.15' }).save(function(err) {});
         new Todo({ text: 'Oranges', quantity: 10, price: '2.15' }).save(function(err) {});
         new Todo({ text: 'Bananas', quantity: 10, price: '2.15' }).save(function(err) {});
@@ -283,13 +250,8 @@ describe('Order Items', function() {
                 });
                 done();
             });
-        // });
     });
     it('should return a 500 and error message when order number is not valid: /api/list/:item_id GET', function(done) {
-        // console.log("NODE_ENV:" + process.env.NODE_ENV);
-        // console.log("NODE_ENV:" + process.env.NODE_ENV);
-        // Todo.where('text', 'Oranges').exec(function(err, todo) {
-        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
         new Todo({ text: 'Apples', quantity: 10, price: '2.15' }).save(function(err) {});
         var value = "2nd"
         chai.request(server)
@@ -298,11 +260,8 @@ describe('Order Items', function() {
                 console.log("err.message:" + JSON.stringify(err.message));
                 res.should.have.status(500);
                 res.should.be.json;
-                // res.body.should.include({ error: "Not a valid id:1" });
                 res.body.should.have.property('error')
-                    // done();
             });
-        // });
         value = "0";
         chai.request(server)
             .get('/api/list/' + value)
@@ -310,7 +269,6 @@ describe('Order Items', function() {
                 console.log("res.body:" + JSON.stringify(res.body));
                 res.should.have.status(500);
                 res.should.be.json;
-                // res.body.should.include({ error: "Not a valid id:1" });
                 res.body.should.have.property('error')
                 done();
             });

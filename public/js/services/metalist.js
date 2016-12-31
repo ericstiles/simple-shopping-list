@@ -8,11 +8,11 @@ angular.module('metalistService', [])
 				return $http.get('/api/metalist');
 			},
 			add : function(todoData) {
-				return $http.post('/api/metalist/total/add', todoData);
+				return $http.post('/api/metalist/add', todoData);
 			},
 			subtract : function(id) {
 				console.log("in service deleting id: " + id)
-				return $http.post('/api/metalist/total/subtract', {id: id});
+				return $http.post('/api/metalist/subtract', {id: id});
 			}
 		}
 	}]);
