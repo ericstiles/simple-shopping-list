@@ -145,6 +145,7 @@ function getItemAtOrder(order, res) {
             try {
                 // if there is an error retrieving, send the error. nothing after res.send(err) will execute
                 if (err) {
+                    console.log(err.message)
                     res.send(err);
                 }
 
@@ -153,7 +154,7 @@ function getItemAtOrder(order, res) {
                 if (todos.length >= number[0].value && number[0].value > 0) {
                     res.json(todos[number[0].value - 1]);
                 } else {
-throw new Error("Order value not valid:" + JSON.stringify(number[0]));
+                    throw new Error("Order value not valid:" + JSON.stringify(number[0]));
                 }
                 // if (todos.length > number[0].value) {
                 //     res.json(todos[number[0].value - 1]); // return all todos in JSON format
@@ -161,8 +162,8 @@ throw new Error("Order value not valid:" + JSON.stringify(number[0]));
                 //     res.send("no item found");
                 // }
             } catch (err) {
-        console.log("ERR in order request:" + err.message);
-        res.status(500).json({ error: err.message });
+                console.log("ERR in order request:" + err.message);
+                res.status(500).json({ error: err.message });
             }
         });
     })

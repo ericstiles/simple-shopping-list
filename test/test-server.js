@@ -216,7 +216,7 @@ describe('Order Items', function() {
             });
         // });
     });
-       it('should return the first list item given 1st when one item in list: /api/list/:item_id GET', function(done) {
+    it('should return the first list item given 1st when one item in list: /api/list/:item_id GET', function(done) {
         // console.log("NODE_ENV:" + process.env.NODE_ENV);
         // console.log("NODE_ENV:" + process.env.NODE_ENV);
         // Todo.where('text', 'Oranges').exec(function(err, todo) {
@@ -238,13 +238,72 @@ describe('Order Items', function() {
             });
         // });
     });
-        it('should return a 500 and error message when order number is not valid: /api/list/:item_id GET', function(done) {
+    it('should return the second list item given 2nd when two items in list: /api/list/:item_id GET', function(done) {
         // console.log("NODE_ENV:" + process.env.NODE_ENV);
         // console.log("NODE_ENV:" + process.env.NODE_ENV);
         // Todo.where('text', 'Oranges').exec(function(err, todo) {
         // if there is an error retrieving, send the error. nothing after res.send(err) will execute
         new Todo({ text: 'Apples', quantity: 10, price: '2.15' }).save(function(err) {});
+        new Todo({ text: 'Oranges', quantity: 10, price: '2.15' }).save(function(err) {});
         let value = "2nd"
+        chai.request(server)
+            .get('/api/list/' + value)
+            .end(function(err, res) {
+                console.log("res.body:" + JSON.stringify(res.body));
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.include({
+                    text: 'Oranges',
+                    quantity: 10,
+                    price: 2.15
+                });
+                done();
+            });
+        // });
+    });
+    it('should return the second list item given 2nd when three items in list: /api/list/:item_id GET', function(done) {
+        // console.log("NODE_ENV:" + process.env.NODE_ENV);
+        // console.log("NODE_ENV:" + process.env.NODE_ENV);
+        // Todo.where('text', 'Oranges').exec(function(err, todo) {
+        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+        new Todo({ text: 'Apples', quantity: 10, price: '2.15' }).save(function(err) {});
+        new Todo({ text: 'Oranges', quantity: 10, price: '2.15' }).save(function(err) {});
+        new Todo({ text: 'Bananas', quantity: 10, price: '2.15' }).save(function(err) {});
+        let value = "2nd"
+        chai.request(server)
+            .get('/api/list/' + value)
+            .end(function(err, res) {
+                console.log("res.body:" + JSON.stringify(res.body));
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.include({
+                    text: 'Oranges',
+                    quantity: 10,
+                    price: 2.15
+                });
+                done();
+            });
+        // });
+    });
+    it('should return a 500 and error message when order number is not valid: /api/list/:item_id GET', function(done) {
+        // console.log("NODE_ENV:" + process.env.NODE_ENV);
+        // console.log("NODE_ENV:" + process.env.NODE_ENV);
+        // Todo.where('text', 'Oranges').exec(function(err, todo) {
+        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+        new Todo({ text: 'Apples', quantity: 10, price: '2.15' }).save(function(err) {});
+        var value = "2nd"
+        chai.request(server)
+            .get('/api/list/' + value)
+            .end(function(err, res) {
+                console.log("err.message:" + JSON.stringify(err.message));
+                res.should.have.status(500);
+                res.should.be.json;
+                // res.body.should.include({ error: "Not a valid id:1" });
+                res.body.should.have.property('error')
+                    // done();
+            });
+        // });
+        value = "0";
         chai.request(server)
             .get('/api/list/' + value)
             .end(function(err, res) {
@@ -255,6 +314,5 @@ describe('Order Items', function() {
                 res.body.should.have.property('error')
                 done();
             });
-        // });
     });
 });
