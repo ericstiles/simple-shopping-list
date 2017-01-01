@@ -169,6 +169,7 @@ module.exports = function(app) {
         .get(function(req, res) {
             getTodos(res);
         }).post(function(req, res) {
+            console.log("adding new item:" + JSON.stringify(req.body));
             var newTodo = new Todo(req.body);
             newTodo.save((err, newTodo) => {
                 if (err) {

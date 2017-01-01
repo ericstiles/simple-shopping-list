@@ -51,6 +51,7 @@ describe('List Items', function() {
                 res.should.have.status(200);
                 res.should.be.json;
                 res.body.should.have.length(2);
+                console.log("api/list=>" + JSON.stringify(res.body));
                 done();
             });
     });
