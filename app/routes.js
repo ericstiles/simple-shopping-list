@@ -156,7 +156,15 @@ function getItemAtOrder(order, res) {
         });
     })
 }
-
+//Shouldn't use exception for this, but needed a quick solution
+function isJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
 module.exports = function(app) {
 
     // api ---------------------------------------------------------------------
@@ -169,11 +177,19 @@ module.exports = function(app) {
         .get(function(req, res) {
             getTodos(res);
         }).post(function(req, res) {
-            console.log("adding new item:" + JSON.stringify(req.body));
-            var newTodo = new Todo(req.body);
+            var jsonItem;
+            if (!isJsonString(req.body)) {
+                console.log("req.body is json");
+                jsonItem = req.body;
+            } else {
+                console.log("req.body is not json");
+                jsonItem = JSON.parse(req.body);
+            }
+            console.log("adding new item:" + JSON.stringify(jsonItem));
+            var newTodo = new Todo(jsonItem);
             newTodo.save((err, newTodo) => {
                 if (err) {
-                    res.status(500).json({error: err.message});
+                    res.status(500).json({ error: err.message });
                 } else {
                     getTodos(res);
                 }
@@ -194,10 +210,7 @@ module.exports = function(app) {
         .get(function(req, res) {
             getMetaList(res);
         });
-    app.get('/api/item/:order', function(req, res) {
-        console.log("order:" + req.params.order);
-        getItemAtOrder(req.params.order, res);
-    });
+
 
 
 
